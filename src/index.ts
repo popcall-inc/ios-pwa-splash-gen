@@ -9,6 +9,7 @@ import {
 import { generatorModes } from "./modes/registry.ts";
 import fs from "node:fs/promises";
 import { buildSizes } from "./size-loader.ts";
+import { generateMeta } from "./meta-generator.ts";
 
 const commands = generatorModes.map((mode) =>
   defineCommand(
@@ -43,6 +44,12 @@ const commands = generatorModes.map((mode) =>
           default: 25,
         },
 
+        imagePathPrefix: {
+          type: String,
+          description: "Prefix for the image path when serving the images",
+          default: "",
+        },
+
         ...Object.entries(mode.inputs)
           .map(([name, defaultValue]) => ({
             name,
@@ -62,6 +69,7 @@ const commands = generatorModes.map((mode) =>
         cutoff,
         clearOutputDirectory,
         iconSizePercentage,
+        imagePathPrefix,
         ...rest
       } = context.flags;
 
@@ -127,8 +135,15 @@ const commands = generatorModes.map((mode) =>
         }),
       );
 
+      await generateMeta(sizes, output, imagePathPrefix);
+
       console.log(
         `Successfully generated splash images for ${mode.name} (${physicalSizes.length} output images)`,
+      );
+
+      console.log(`\n\nHTML tags are in ${output}/meta.html`);
+      console.log(
+        `Make sure you serve the images from "${imagePathPrefix || "/"}" (want to change this? add --imagePathPrefix <prefix>)`,
       );
     },
   ),
