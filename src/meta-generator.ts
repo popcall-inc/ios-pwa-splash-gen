@@ -1,4 +1,4 @@
-import type { Size } from "./size-loader.ts";
+import type {Size} from "./size-loader.ts";
 import fs from "node:fs/promises";
 
 function makeMetaItem(
@@ -6,7 +6,13 @@ function makeMetaItem(
   orientation: "portrait" | "landscape",
   pathPrefix: string,
 ): string {
-  return `<link rel="apple-touch-startup-image" media="(device-width: ${size.logical.width}px) and (device-height: ${size.logical.height}px) and (-webkit-device-pixel-ratio: ${size.scalingFactor}) and (orientation: ${orientation})" href="${pathPrefix}/${size.physical.width}x${size.physical.height}.png">`;
+  // noinspection JSSuspiciousNameCombination
+  const physical = orientation === "portrait" ? size.physical : {
+    width: size.physical.height,
+    height: size.physical.width,
+  };
+
+  return `<link rel="apple-touch-startup-image" media="screen and (device-width: ${size.logical.width}px) and (device-height: ${size.logical.height}px) and (-webkit-device-pixel-ratio: ${size.scalingFactor}) and (orientation: ${orientation})" href="${pathPrefix}/${physical.width}x${physical.height}.png">`;
 }
 
 export async function generateMeta(
