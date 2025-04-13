@@ -7,7 +7,12 @@ export interface GeneratorMode<Inputs extends Record<string, string>> {
   name: Mode;
   description: string;
   inputs: Inputs;
-  generate: (inputs: Inputs, outputDir: string) => Promise<void>;
+  generate: (context: {
+    inputs: Inputs;
+    outputDir: string;
+    size: { width: number; height: number };
+    iconSizePercentage: number;
+  }) => Promise<void>;
 }
 
 export function createGenerator<Inputs extends Record<string, string>>(
